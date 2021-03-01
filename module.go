@@ -143,13 +143,17 @@ func loadSupressor(ctx *ntcontext, inp *device, out *device) error {
 		}
 		log.Printf("Loaded null sink as idx: %d\n", idx)
 
-		idx, err = c.LoadModule("module-ladspa-sink",
-			fmt.Sprintf("sink_name=nui_mic_raw_in sink_master=nui_mic_denoised_out "+
-				"label=noisetorch plugin=%s control=%d", ctx.librnnoise, ctx.config.Threshold))
+		err = loadLadspaInput(ctx, inp)
 		if err != nil {
 			return err
 		}
-		log.Printf("Loaded ladspa sink as idx: %d\n", idx)
+		//idx, err = c.LoadModule("module-ladspa-sink",
+		//fmt.Sprintf("sink_name=nui_mic_raw_in sink_master=nui_mic_denoised_out "+
+		//"label=noisetorch plugin=%s control=%d", ctx.librnnoise, ctx.config.Threshold))
+		//if err != nil {
+		//return err
+		//}
+		//log.Printf("Loaded ladspa sink as idx: %d\n", idx)
 
 		if inp.dynamicLatency {
 			idx, err = c.LoadModule("module-loopback",
@@ -187,12 +191,16 @@ func loadSupressor(ctx *ntcontext, inp *device, out *device) error {
 			return err
 		}
 
-		_, err = c.LoadModule("module-ladspa-sink", fmt.Sprintf(`sink_name=nui_out_ladspa sink_master=nui_out_out_sink `+
-			`label=noisetorch channels=1 plugin=%s control=%d rate=%d`,
-			ctx.librnnoise, ctx.config.Threshold, 48000))
+		err = loadLadspaOutput(ctx, out)
 		if err != nil {
 			return err
 		}
+		//_, err = c.LoadModule("module-ladspa-sink", fmt.Sprintf(`sink_name=nui_out_ladspa sink_master=nui_out_out_sink `+
+		//`label=noisetorch channels=1 plugin=%s control=%d rate=%d`,
+		//ctx.librnnoise, ctx.config.Threshold, 48000))
+		//if err != nil {
+		//return err
+		//}
 
 		_, err = c.LoadModule("module-loopback",
 			fmt.Sprintf("source=nui_out_out_sink.monitor sink=%s channels=2 latency_msec=50 source_dont_move=true sink_dont_move=true", out.ID))

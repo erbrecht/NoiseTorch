@@ -4,12 +4,14 @@ package main
 
 import (
 	"io/ioutil"
+	"log"
+	"os"
+
+	_ "embed"
 )
 
 //go:embed c/ladspa/rnnoise_ladspa.so
 var libRNNoise []byte
-
-const appName = "NoiseTorch"
 
 func init_ladspa(ctx *ntcontext) {
 

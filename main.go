@@ -24,7 +24,7 @@ import (
 	"github.com/aarzilli/nucular/style"
 )
 
-// //go:generate go run scripts/embedversion.go
+//go:generate go run scripts/embedversion.go
 //go:generate go run scripts/embedlicenses.go
 
 //go:embed assets/patreon.png
@@ -98,7 +98,7 @@ func main() {
 
 	ctx := ntcontext{}
 	ctx.config = readConfig()
-	go init_ladspa(&ctx)
+	init_ladspa(&ctx)
 
 	paClient, err := pulseaudio.NewClient()
 

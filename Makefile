@@ -25,4 +25,7 @@ release: rnnoise
 rnnoise:
 	cd c/ladspa; \
 	make
-
+distro: rnnoise
+	mkdir -p bin
+	go generate
+	go build -o bin/noisetorch

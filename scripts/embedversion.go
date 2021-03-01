@@ -9,11 +9,17 @@ import (
 func main() {
 	cmd := exec.Command("git", "describe", "--tags")
 	ret, err := cmd.Output()
+	dist_version := os.Getenv("DIST_VERSION")
 
-	if err != nil {
-		panic("Couldn't read git tags to embed version number")
+	if err != nil || strings.TrimSpace(dist_version) == "" {
+		panic("Couldn't read git tags or environment variable to embed version number")
 	}
+
 	version := strings.TrimSpace(string(ret))
+
+	if strings.TrimSpace(dist_version) != "" {
+		version = strings.TrimSpace(dist_version)
+	}
 
 	out, _ := os.Create("version.go")
 	defer out.Close()
