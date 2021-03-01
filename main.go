@@ -4,7 +4,6 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,11 +24,8 @@ import (
 	"github.com/aarzilli/nucular/style"
 )
 
-//go:generate go run scripts/embedversion.go
+// //go:generate go run scripts/embedversion.go
 //go:generate go run scripts/embedlicenses.go
-
-//go:embed c/ladspa/rnnoise_ladspa.so
-var libRNNoise []byte
 
 //go:embed assets/patreon.png
 var patreonPNG []byte
@@ -99,12 +95,10 @@ func main() {
 	log.Printf("CAP_SYS_RESOURCE: %t\n", hasCapSysResource(getCurrentCaps()))
 
 	initializeConfigIfNot()
-	rnnoisefile := dumpLib()
-	defer removeLib(rnnoisefile)
 
 	ctx := ntcontext{}
 	ctx.config = readConfig()
-	ctx.librnnoise = rnnoisefile
+	go init_ladspa(&ctx)
 
 	paClient, err := pulseaudio.NewClient()
 
@@ -229,24 +223,6 @@ func main() {
 	go fixWindowClass()
 	wnd.Main()
 
-}
-
-func dumpLib() string {
-	f, err := ioutil.TempFile("", "librnnoise-*.so")
-	if err != nil {
-		log.Fatalf("Couldn't open temp file for librnnoise\n")
-	}
-	f.Write(libRNNoise)
-	log.Printf("Wrote temp librnnoise to: %s\n", f.Name())
-	return f.Name()
-}
-
-func removeLib(file string) {
-	err := os.Remove(file)
-	if err != nil {
-		log.Printf("Couldn't delete temp librnnoise: %v\n", err)
-	}
-	log.Printf("Deleted temp librnnoise: %s\n", file)
 }
 
 func getSources(client *pulseaudio.Client) []device {
